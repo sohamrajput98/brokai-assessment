@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Brokai Lead Intelligence</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: #0f0f0f;
+      color: #e8e8e8;
+      min-height: 100vh;
+    }
+
+    header {
+      background: #141414;
+      border-bottom: 1px solid #222;
+      padding: 20px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    header h1 {
+      font-size: 18px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      color: #fff;
+    }
+
+    header span {
+      font-size: 12px;
+      color: #555;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 32px;
+    }
+
+    .controls {
+      background: #141414;
+      border: 1px solid #222;
+      border-radius: 8px;
+      padding: 24px;
+      margin-bottom: 32px;
+    }
+
+    .controls h2 {
+      font-size: 14px;
+      font-weight: 500;
+      color: #aaa;
+      margin-bottom: 16px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .btn {
+      background: #fff;
+      color: #000;
+      border: none;
+      padding: 10px 24px;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+
+    .btn:hover { opacity: 0.85; }
+    .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    .btn-secondary {
+      background: #1e1e1e;
+      color: #e8e8e8;
+      border: 1px solid #333;
+      margin-left: 12px;
+    }
+
+    .status-bar {
+      margin-top: 16px;
+      font-size: 13px;
+      color: #666;
+      min-height: 20px;
+    }
+
+    .status-bar.running { color: #f0a500; }
+    .status-bar.done { color: #4caf50; }
+    .status-bar.error { color: #e05252; }
+
+    .progress-wrap {
+      margin-top: 12px;
+      background: #1e1e1e;
+      border-radius: 4px;
+      height: 4px;
+      overflow: hidden;
+      display: none;
+    }
+
+    .progress-bar {
+      height: 100%;
+      background: #fff;
+      width: 0%;
+      transition: width 0.4s ease;
+    }
+
+    /* Stats row */
+    .stats {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 28px;
+      flex-wrap: wrap;
+    }
+
+    .stat-card {
+      background: #141414;
+      border: 1px solid #222;
+      border-radius: 8px;
+      padding: 16px 24px;
+      min-width: 140px;
+    }
+
+    .stat-card .val {
+      font-size: 28px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .stat-card .lbl {
+      font-size: 12px;
+      color: #555;
+      margin-top: 4px;
+    }
+
+    /* Table */
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid #222;
+      border-radius: 8px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    thead {
+      background: #141414;
+      position: sticky;
+      top: 0;
+    }
+
+    th {
+      padding: 12px 16px;
+      text-align: left;
+      font-weight: 500;
+      color: #666;
+      text-transform: uppercase;
+      font-size: 11px;
+      letter-spacing: 0.8px;
+      border-bottom: 1px solid #222;
+      white-space: nowrap;
+    }
+
+    td {
+      padding: 14px 16px;
+      border-bottom: 1px solid #1a1a1a;
+      vertical-align: top;
+      max-width: 300px;
+    }
+
+    tr:last-child td { border-bottom: none; }
+
+    tr:hover td { background: #161616; }
+
+    .company-name {
+      font-weight: 600;
+      color: #fff;
+      font-size: 14px;
+    }
+
+    .location-tag {
+      display: inline-block;
+      background: #1e1e1e;
+      color: #888;
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 4px;
+      margin-top: 4px;
+    }
+
+    .summary-text {
+      color: #ccc;
+      line-height: 1.5;
+    }
+
+    .contact-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 6px;
+      margin-bottom: 4px;
+      font-size: 12px;
+    }
+
+    .contact-label {
+      color: #555;
+      min-width: 55px;
+      font-size: 11px;
+      text-transform: uppercase;
+    }
+
+    .contact-value { color: #ccc; }
+
+    .source-link {
+      font-size: 11px;
+      color: #555;
+      text-decoration: none;
+      word-break: break-all;
+    }
+
+    .source-link:hover { color: #aaa; }
+
+    .message-box {
+      background: #1a1a1a;
+      border-left: 2px solid #333;
+      padding: 10px 12px;
+      border-radius: 0 6px 6px 0;
+      color: #ccc;
+      line-height: 1.6;
+      font-size: 12px;
+      white-space: pre-wrap;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 500;
+    }
+
+    .badge-success { background: #1a2e1a; color: #4caf50; }
+    .badge-partial { background: #2e2a1a; color: #f0a500; }
+    .badge-failed { background: #2e1a1a; color: #e05252; }
+
+    .copy-btn {
+      background: none;
+      border: 1px solid #333;
+      color: #666;
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-top: 6px;
+    }
+
+    .copy-btn:hover { color: #ccc; border-color: #555; }
+
+    .empty-state {
+      text-align: center;
+      padding: 80px 32px;
+      color: #444;
+    }
+
+    .empty-state h3 { font-size: 16px; margin-bottom: 8px; color: #555; }
+    .empty-state p { font-size: 13px; }
+
+    .spinner {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      border: 2px solid #333;
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin-right: 8px;
+      vertical-align: middle;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>⚡ Brokai Lead Intelligence</h1>
+  <span>Multi-Agent Pipeline · Solar EPC · Rajasthan</span>
+</header>
+
+<div class="container">
+
+  <div class="controls">
+    <h2>Run Pipeline</h2>
+    <button class="btn" id="runBtn" onclick="runPipeline()">Run on All Companies</button>
+    <button class="btn btn-secondary" id="clearBtn" onclick="clearResults()">Clear</button>
+    <div class="progress-wrap" id="progressWrap">
+      <div class="progress-bar" id="progressBar"></div>
+    </div>
+    <div class="status-bar" id="statusBar">Ready — click Run to start the pipeline.</div>
+  </div>
+
+  <div class="stats" id="statsRow" style="display:none">
+    <div class="stat-card">
+      <div class="val" id="statTotal">0</div>
+      <div class="lbl">Total Companies</div>
+    </div>
+    <div class="stat-card">
+      <div class="val" id="statSuccess" style="color:#4caf50">0</div>
+      <div class="lbl">Successfully Processed</div>
+    </div>
+    <div class="stat-card">
+      <div class="val" id="statContact" style="color:#f0a500">0</div>
+      <div class="lbl">Contacts Found</div>
+    </div>
+    <div class="stat-card">
+      <div class="val" id="statFailed" style="color:#e05252">0</div>
+      <div class="lbl">Failed / No Data</div>
+    </div>
+  </div>
+
+  <div class="table-wrap" id="tableWrap">
+    <div class="empty-state" id="emptyState">
+      <h3>No results yet</h3>
+      <p>Click "Run on All Companies" to start the multi-agent pipeline.</p>
+    </div>
+    <table id="resultsTable" style="display:none">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Company</th>
+          <th>Business Profile</th>
+          <th>Contact Info</th>
+          <th>Outreach Message</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody id="resultsBody"></tbody>
+    </table>
+  </div>
+
+</div>
+
+<script>
+  let results = [];
+
+  async function runPipeline() {
+    const btn = document.getElementById('runBtn');
+    const statusBar = document.getElementById('statusBar');
+    const progressWrap = document.getElementById('progressWrap');
+    const progressBar = document.getElementById('progressBar');
+
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span>Running Pipeline...';
+    statusBar.className = 'status-bar running';
+    statusBar.textContent = 'Starting agents... this may take 2-4 minutes for all companies.';
+    progressWrap.style.display = 'block';
+    progressBar.style.width = '10%';
+
+    try {
+      progressBar.style.width = '30%';
+      statusBar.textContent = 'Agent 01 (Researcher) → Agent 02 (Contact Finder) → Agent 03 (Outreach Writer)...';
+
+      const response = await fetch('/process-excel', { method: 'POST' });
+
+      progressBar.style.width = '90%';
+
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+      results = await response.json();
+
+      if (results.error) throw new Error(results.error);
+
+      progressBar.style.width = '100%';
+      renderResults(results);
+
+      statusBar.className = 'status-bar done';
+      statusBar.textContent = `✓ Pipeline complete — ${results.length} companies processed.`;
+
+    } catch (err) {
+      statusBar.className = 'status-bar error';
+      statusBar.textContent = `Error: ${err.message}`;
+      progressBar.style.width = '0%';
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Run on All Companies';
+    }
+  }
+
+  function renderResults(data) {
+    const tbody = document.getElementById('resultsBody');
+    const table = document.getElementById('resultsTable');
+    const emptyState = document.getElementById('emptyState');
+    const statsRow = document.getElementById('statsRow');
+
+    tbody.innerHTML = '';
+
+    const total = data.length;
+    const success = data.filter(r => r.status === 'success').length;
+    const failed = data.filter(r => r.status === 'failed').length;
+    const hasContact = data.filter(r =>
+      r.contact_phone !== 'Not found' || r.contact_email !== 'Not found'
+    ).length;
+
+    document.getElementById('statTotal').textContent = total;
+    document.getElementById('statSuccess').textContent = success;
+    document.getElementById('statContact').textContent = hasContact;
+    document.getElementById('statFailed').textContent = failed;
+    statsRow.style.display = 'flex';
+
+    data.forEach((row, i) => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td style="color:#444;font-size:12px">${i + 1}</td>
+        <td>
+          <div class="company-name">${esc(row.company_name)}</div>
+          <div class="location-tag">${esc(row.location)}</div>
+        </td>
+        <td>
+          <div class="summary-text">${esc(row.business_summary)}</div>
+          <div style="margin-top:8px;font-size:11px;color:#555">
+            <strong style="color:#444">Digital:</strong> ${esc(row.digital_presence)}<br>
+            <strong style="color:#444">CRM/Booking:</strong> ${esc(row.uses_crm_or_booking)}
+          </div>
+        </td>
+        <td>
+          <div class="contact-item">
+            <span class="contact-label">Phone</span>
+            <span class="contact-value">${esc(row.contact_phone)}</span>
+          </div>
+          <div class="contact-item">
+            <span class="contact-label">Email</span>
+            <span class="contact-value">${esc(row.contact_email)}</span>
+          </div>
+          <div class="contact-item">
+            <span class="contact-label">WA</span>
+            <span class="contact-value">${esc(row.contact_whatsapp)}</span>
+          </div>
+          ${row.contact_source_url !== 'Not found' ?
+            `<a href="${esc(row.contact_source_url)}" target="_blank" class="source-link">↗ Source</a>` :
+            '<span style="font-size:11px;color:#444">No source found</span>'
+          }
+        </td>
+        <td>
+          <div class="message-box">${esc(row.outreach_message)}</div>
+          <button class="copy-btn" onclick="copyMsg(this, ${i})">Copy</button>
+        </td>
+        <td>
+          <span class="badge badge-${row.status}">${row.status}</span>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+
+    emptyState.style.display = 'none';
+    table.style.display = 'table';
+  }
+
+  function copyMsg(btn, idx) {
+    navigator.clipboard.writeText(results[idx].outreach_message);
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = 'Copy', 1500);
+  }
+
+  function clearResults() {
+    document.getElementById('resultsBody').innerHTML = '';
+    document.getElementById('resultsTable').style.display = 'none';
+    document.getElementById('emptyState').style.display = 'block';
+    document.getElementById('statsRow').style.display = 'none';
+    document.getElementById('statusBar').textContent = 'Ready — click Run to start the pipeline.';
+    document.getElementById('statusBar').className = 'status-bar';
+    document.getElementById('progressBar').style.width = '0%';
+    document.getElementById('progressWrap').style.display = 'none';
+    results = [];
+  }
+
+  function esc(str) {
+    if (!str) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+</script>
+
+</body>
+</html>
