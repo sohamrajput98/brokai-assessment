@@ -16,7 +16,8 @@ from agents.outreach_writer import OutreachWriterAgent
 load_dotenv()
 
 app = FastAPI(title="Brokai Lead Intelligence")
-app.mount("/static", StaticFiles(directory="static"), name="static")
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+app.mount("/static", StaticFiles(directory=os.path.join(BASE_DIR, "static")), name="static")
 
 async def retry_with_backoff(func, max_retries=3):
     """Retry function with exponential backoff for rate limits"""
@@ -40,30 +41,53 @@ def parse_email(raw: str) -> str:
 
 
 def load_companies():
-    df = pd.read_excel("data/companies.xlsx", header=None)
-    companies = []
-    for _, row in df.iterrows():
-        name = str(row[2]).strip() if row[2] else None
-        if not name or name == "None":
-            continue
-        companies.append({
-            "name": name,
-            "location": str(row[1]).strip() if row[1] else "Rajasthan, India",
-            "email_from_excel": parse_email(str(row[3]) if row[3] else "")
-        })
-    return companies
-
-
-@app.get("/", response_class=HTMLResponse)
-async def root():
-    with open("static/index.html", "r") as f:
-        return f.read()
-
+    try:
+        df = pd.read_excel("data/companies.xlsx", header=None)
+        companies = []
+        for _, row in df.iterrows():
+            name = str(row[2]).strip() if row[2] else None
+            if not name or name == "None" or name.lower() == "nan":
+                continue
+            companies.append({
+                "name": name,
+                "location": str(row[1]).strip() if row[1] else "Rajasthan, India",
+                "email_from_excel": parse_email(str(row[3]) if row[3] else "")
+            })
+        return companies
+    except FileNotFoundError:
+        # Excel not available in deployed env — company names only, no sensitive data
+        return [
+            {"name": "Yash Electricals & Civil Services", "location": "Rajasthan, India", "email_from_excel": "Not found"},
+            {"name": "Dayma Enterprises", "location": "Rajasthan, India", "email_from_excel": "Not found"},
+            {"name": "Indepletable Energy", "location": "Rajasthan, India", "email_from_excel": "Not found"},
+            {"name": "Solar Technocrats", "location": "Rajasthan, India", "email_from_excel": "Not found"},
+            {"name": "Udaipur Green Energy Solution", "location": "Rajasthan, India", "email_from_excel": "Not found"},
+            {"name": "Ratan Green Energy Service Pvt. Ltd", "location": "Rajasthan, India", "email_from_excel": "Not found"},
+            {"name": "Deepak Enterprises", "location": "Rajasthan, India", "email_from_excel": "Not found"},
+            {"name": "Green Power Corporation", "location": "Rajasthan, India", "email_from_excel": "Not found"},
+            {"name": "Skype Solar Pvt Ltd", "location": "Rajasthan, India", "email_from_excel": "Not found"},
+            {"name": "Kanta Solar", "location": "Rajasthan, India", "email_from_excel": "Not found"},
+            {"name": "Vinayakam Solution", "location": "Rajasthan, India", "email_from_excel": "Not found"},
+            {"name": "Shree Solar Venture Pvt. Ltd.", "location": "Rajasthan, India", "email_from_excel": "Not found"},
+            {"name": "Sunrise Solar and Electrical Solution", "location": "Rajasthan, India", "email_from_excel": "Not found"},
+            {"name": "Soratan Enterprises", "location": "Rajasthan, India", "email_from_excel": "Not found"},
+            {"name": "Priya Battery & Invertors", "location": "Rajasthan, India", "email_from_excel": "Not found"},
+            {"name": "Traurja Solutions LLP", "location": "Rajasthan, India", "email_from_excel": "Not found"},
+            {"name": "Vidit Solar Energy", "location": "Rajasthan, India", "email_from_excel": "Not found"},
+            {"name": "Neoterix Solution Pvt. Ltd.", "location": "Rajasthan, India", "email_from_excel": "Not found"},
+            {"name": "Go Green Solar", "location": "Rajasthan, India", "email_from_excel": "Not found"},
+            {"name": "Raghubir Prasad and Brothers", "location": "Rajasthan, India", "email_from_excel": "Not found"},
+            {"name": "Lanch Associates", "location": "Rajasthan, India", "email_from_excel": "Not found"},
+        ]
 
 @app.get("/health")
 async def health():
     return {"status": "ok"}
 
+@app.get("/", response_class=HTMLResponse)
+async def root():
+    with open(os.path.join(BASE_DIR, "static", "index.html"), "r") as f:
+        return f.read()
 
 async def process_one(company: dict, researcher, contact_finder, outreach_writer) -> dict:
     name = company["name"]
