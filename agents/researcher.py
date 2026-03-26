@@ -62,7 +62,7 @@ Use honest fallbacks if info is missing. Do not invent facts."""
             return json.loads(content.strip())
         except Exception as e:
             return {
-                "summary": f"Profile extraction failed: {e}",
+                "summary": "Could not retrieve profile at this time. Outreach generated from industry context.",
                 "digital_presence": "Could not determine",
                 "uses_crm_or_booking": "Unknown"
-            }
+     }
