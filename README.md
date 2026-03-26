@@ -26,7 +26,7 @@ finds contacts, and generates WhatsApp outreach messages.
 </p>
 
 <p align="center">
-  <sub>  ⚠️ Cold start: ~30–50s • Full run: ~2–3 min. Do not close the tab.</sub>
+  <sub>  ⚠️ Cold start: ~30–50s • Full run: ~3-5 min. Do not close the tab.</sub>
 </p>
 
 ---
