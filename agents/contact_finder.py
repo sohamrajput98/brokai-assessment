@@ -1,7 +1,7 @@
 import os
 import json
 from tavily import TavilyClient
-from groq import Groq
+from agents.llm_client import call_llm
 
 
 class ContactFinderAgent:
@@ -13,7 +13,7 @@ class ContactFinderAgent:
 
     def __init__(self):
         self.tavily = TavilyClient(api_key=os.getenv("TAVILY_API_KEY"))
-        self.groq = Groq(api_key=os.getenv("GROQ_API_KEY"))
+        
 
     def run(self, company_name: str, location: str, profile: dict, known_email: str = "Not found") -> dict:
         queries = [
@@ -63,14 +63,13 @@ Rules:
 - If multiple phones, pick the most prominent one"""
 
         try:
-            resp = self.groq.chat.completions.create(
-                model="llama-3.1-8b-instant",
-                messages=[{"role": "user", "content": prompt}],
-                temperature=0.1,
-                max_tokens=300,
-                response_format={"type": "json_object"}  # Force JSON output
-            )
-            content = resp.choices[0].message.content.strip()
+            content = call_llm(prompt, max_tokens=300, temperature=0.1)
+
+            if content.startswith("```"):
+                content = content.split("```")[1]
+                if content.startswith("json"):
+                    content = content[4:]
+            content = content.strip()
             result = json.loads(content)
             result["email"] = known_email
             return result
