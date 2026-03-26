@@ -1,7 +1,7 @@
 import os
 import json
 from tavily import TavilyClient
-from groq import Groq
+from agents.llm_client import call_llm
 
 
 class ResearcherAgent:
@@ -13,7 +13,6 @@ class ResearcherAgent:
 
     def __init__(self):
         self.tavily = TavilyClient(api_key=os.getenv("TAVILY_API_KEY"))
-        self.groq = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
     def run(self, company_name: str, location: str) -> dict:
         query = f"{company_name} {location}"
@@ -55,15 +54,12 @@ Return ONLY valid JSON with these exact keys:
 Use honest fallbacks if info is missing. Do not invent facts."""
 
         try:
-            resp = self.groq.chat.completions.create(
-                model="llama-3.3-70b-versatile",
-                messages=[{"role": "user", "content": prompt}],
-                temperature=0.1,
-                max_tokens=500,
-                response_format={"type": "json_object"}  
-            )
-            content = resp.choices[0].message.content.strip()
-            return json.loads(content)
+            content = call_llm(prompt, max_tokens=500, temperature=0.1)
+            if content.startswith("```"):
+                content = content.split("```")[1]
+                if content.startswith("json"):
+                 content = content[4:]
+            return json.loads(content.strip())
         except Exception as e:
             return {
                 "summary": f"Profile extraction failed: {e}",
