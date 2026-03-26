@@ -153,14 +153,16 @@ async def process_excel():
     contact_finder = ContactFinderAgent()
     outreach_writer = OutreachWriterAgent()
 
+    BATCH_SIZE = 3
+
     results = []
-    # Process sequentially with delays to avoid rate limits
-    for i, company in enumerate(companies):
-        result = await process_one(company, researcher, contact_finder, outreach_writer)
-        results.append(result)
-        
-        # Add delay between companies to avoid rate limits
-        if i < len(companies) - 1:  # Don't delay after last company
-            await asyncio.sleep(2)  # 2 second delay between companies
-    
+    for i in range(0, len(companies), BATCH_SIZE):
+        batch = companies[i:i + BATCH_SIZE]
+        batch_results = await asyncio.gather(
+            *[process_one(c, researcher, contact_finder, outreach_writer) for c in batch]
+        )
+        results.extend(batch_results)  # indent inside loop
+        if i + BATCH_SIZE < len(companies):
+            await asyncio.sleep(3)
+
     return results
