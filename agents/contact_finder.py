@@ -1,7 +1,7 @@
 import os
 import json
 from tavily import TavilyClient
-from agents.llm_client import call_llm
+from agents.llm_client import call_llm_fast
 
 
 class ContactFinderAgent:
@@ -63,7 +63,7 @@ Rules:
 - If multiple phones, pick the most prominent one"""
 
         try:
-            content = call_llm(prompt, max_tokens=300, temperature=0.1)
+            content = call_llm_fast(prompt, max_tokens=300, temperature=0.1)
 
             if content.startswith("```"):
                 content = content.split("```")[1]
