@@ -9,7 +9,8 @@ def call_llm_fast(prompt: str, max_tokens: int = 300, temperature: float = 0.1) 
             model="llama-3.1-8b-instant",
             messages=[{"role": "user", "content": prompt}],
             temperature=temperature,
-            max_tokens=max_tokens
+            max_tokens=max_tokens,
+            response_format={"type": "json_object"}  # ← ADD THIS LINE
         )
         return response.choices[0].message.content.strip()
     except Exception as e:
@@ -24,6 +25,7 @@ def call_llm_quality(prompt: str, max_tokens: int = 500, temperature: float = 0.
             messages=[{"role": "user", "content": prompt}],
             temperature=temperature,
             max_tokens=max_tokens
+            # No response_format here - outreach is text, not JSON
         )
         return response.choices[0].message.content.strip()
     except Exception as e:
