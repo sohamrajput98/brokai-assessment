@@ -58,7 +58,7 @@ Use honest fallbacks if info is missing. Do not invent facts."""
             if content.startswith("```"):
                 content = content.split("```")[1]
                 if content.startswith("json"):
-                 content = content[4:]
+                    content = content[4:]
             return json.loads(content.strip())
         except Exception as e:
             return {
