@@ -53,6 +53,7 @@ def load_companies():
                 "location": str(row[1]).strip() if row[1] else "Rajasthan, India",
                 "email_from_excel": parse_email(str(row[3]) if row[3] else "")
             })
+        
         return companies
     except FileNotFoundError:
         # Excel not available in deployed env — company names only, no sensitive data
