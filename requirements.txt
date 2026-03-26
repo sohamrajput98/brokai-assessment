@@ -5,3 +5,4 @@ openpyxl
 python-dotenv
 tavily-python
 groq
+google-generativeai==0.7.2
