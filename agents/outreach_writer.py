@@ -1,5 +1,5 @@
 import os
-from groq import Groq
+from agents.llm_client import call_llm
 
 
 class OutreachWriterAgent:
@@ -10,7 +10,7 @@ class OutreachWriterAgent:
     """
 
     def __init__(self):
-        self.groq = Groq(api_key=os.getenv("GROQ_API_KEY"))
+            pass
 
     def run(self, profile: dict, contact: dict, company_name: str) -> str:
         summary = profile.get("summary", "a business in Rajasthan")
@@ -44,12 +44,7 @@ Write a message that:
 Return only the message body, nothing else."""
 
         try:
-            resp = self.groq.chat.completions.create(
-                model="llama-3.3-70b-versatile",
-                messages=[{"role": "user", "content": prompt}],
-                temperature=0.7,
-                max_tokens=300
-            )
-            return resp.choices[0].message.content.strip()
+            return call_llm(prompt, max_tokens=300, temperature=0.7)
+        
         except Exception as e:
             return f"Message generation failed: {e}"
