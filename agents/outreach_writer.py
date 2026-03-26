@@ -10,7 +10,7 @@ class OutreachWriterAgent:
     """
 
     def __init__(self):
-            pass
+        pass
 
     def run(self, profile: dict, contact: dict, company_name: str) -> str:
         summary = profile.get("summary", "a business in Rajasthan")
