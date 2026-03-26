@@ -4,338 +4,134 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Brokai Lead Intelligence</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-
-    body {
-      font-family: 'Segoe UI', system-ui, sans-serif;
-      background: #0f0f0f;
-      color: #e8e8e8;
-      min-height: 100vh;
-    }
-
-    header {
-      background: #141414;
-      border-bottom: 1px solid #222;
-      padding: 20px 32px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    header h1 {
-      font-size: 18px;
-      font-weight: 600;
-      letter-spacing: 0.5px;
-      color: #fff;
-    }
-
-    header span {
-      font-size: 12px;
-      color: #555;
-    }
-
-    .container {
-      max-width: 1400px;
-      margin: 0 auto;
-      padding: 32px;
-    }
-
-    .controls {
-      background: #141414;
-      border: 1px solid #222;
-      border-radius: 8px;
-      padding: 24px;
-      margin-bottom: 32px;
-    }
-
-    .controls h2 {
-      font-size: 14px;
-      font-weight: 500;
-      color: #aaa;
-      margin-bottom: 16px;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-
-    .btn {
-      background: #fff;
-      color: #000;
-      border: none;
-      padding: 10px 24px;
-      border-radius: 6px;
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: opacity 0.2s;
-    }
-
-    .btn:hover { opacity: 0.85; }
-    .btn:disabled { opacity: 0.4; cursor: not-allowed; }
-
-    .btn-secondary {
-      background: #1e1e1e;
-      color: #e8e8e8;
-      border: 1px solid #333;
-      margin-left: 12px;
-    }
-
-    .status-bar {
-      margin-top: 16px;
-      font-size: 13px;
-      color: #666;
-      min-height: 20px;
-    }
-
-    .status-bar.running { color: #f0a500; }
+    body { font-family: 'Inter', 'Segoe UI', system-ui, sans-serif; background: #0a0a0a; color: #f0f0f0; min-height: 100vh; }
+    header { background: #111; border-bottom: 1px solid #2a2a2a; padding: 18px 32px; display: flex; align-items: center; justify-content: space-between; }
+    .header-left { display: flex; align-items: center; gap: 12px; }
+    .header-logo { width: 32px; height: 32px; background: #fff; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+    header h1 { font-size: 16px; font-weight: 700; color: #fff; letter-spacing: -0.2px; }
+    .header-badge { font-size: 13px; font-weight: 500; color: #bbbbbb; background: #1a1a1a; border: 1px solid #2a2a2a; padding: 3px 10px; border-radius: 20px; }
+    .container { max-width: 1440px; margin: 0 auto; padding: 28px 32px; }
+    .notice { background: #1a1500; border: 1px solid #3a3000; border-radius: 8px; padding: 12px 16px; margin-bottom: 20px; font-size: 13px; font-weight: 500; color: #f0c040; display: flex; align-items: center; gap: 8px; }
+    .controls { background: #111; border: 1px solid #2a2a2a; border-radius: 10px; padding: 20px 24px; margin-bottom: 24px; }
+    .controls-top { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .btn { background: #fff; color: #000; border: none; padding: 10px 22px; border-radius: 7px; font-size: 13px; font-weight: 700; font-family: inherit; cursor: pointer; transition: opacity 0.15s; letter-spacing: -0.1px; }
+    .btn:hover { opacity: 0.88; }
+    .btn:disabled { opacity: 0.35; cursor: not-allowed; }
+    .btn-secondary { background: transparent; color: #bbb; border: 1px solid #2a2a2a; font-weight: 600; }
+    .btn-secondary:hover { color: #fff; border-color: #444; opacity: 1; }
+    .agent-steps { display: none; align-items: center; gap: 0; margin-top: 18px; flex-wrap: wrap; gap: 4px; }
+    .agent-step { display: flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 6px; font-size: 12px; font-weight: 600; color: #555; border: 1px solid #222; background: #111; transition: all 0.3s; }
+    .agent-step.active { color: #fff; border-color: #444; background: #1a1a1a; }
+    .agent-step.done { color: #4caf50; border-color: #1a3a1a; background: #0d1f0d; }
+    .agent-arrow { color: #333; font-size: 14px; font-weight: 700; padding: 0 4px; }
+    .step-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
+    .step-dot.pulse { animation: pulse 1s infinite; }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+    .progress-wrap { margin-top: 14px; background: #1a1a1a; border-radius: 3px; height: 3px; overflow: hidden; display: none; }
+    .progress-bar { height: 100%; background: linear-gradient(90deg, #fff 0%, #aaa 100%); width: 0%; transition: width 0.5s ease; }
+    .status-bar { margin-top: 12px; font-size: 12px; font-weight: 500; color: #666; min-height: 18px; }
+    .status-bar.running { color: #f0c040; }
     .status-bar.done { color: #4caf50; }
     .status-bar.error { color: #e05252; }
-
-    .progress-wrap {
-      margin-top: 12px;
-      background: #1e1e1e;
-      border-radius: 4px;
-      height: 4px;
-      overflow: hidden;
-      display: none;
-    }
-
-    .progress-bar {
-      height: 100%;
-      background: #fff;
-      width: 0%;
-      transition: width 0.4s ease;
-    }
-
-    /* Stats row */
-    .stats {
-      display: flex;
-      gap: 16px;
-      margin-bottom: 28px;
-      flex-wrap: wrap;
-    }
-
-    .stat-card {
-      background: #141414;
-      border: 1px solid #222;
-      border-radius: 8px;
-      padding: 16px 24px;
-      min-width: 140px;
-    }
-
-    .stat-card .val {
-      font-size: 28px;
-      font-weight: 700;
-      color: #fff;
-    }
-
-    .stat-card .lbl {
-      font-size: 12px;
-      color: #555;
-      margin-top: 4px;
-    }
-
-    /* Table */
-    .table-wrap {
-      overflow-x: auto;
-      border: 1px solid #222;
-      border-radius: 8px;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 13px;
-    }
-
-    thead {
-      background: #141414;
-      position: sticky;
-      top: 0;
-    }
-
-    th {
-      padding: 12px 16px;
-      text-align: left;
-      font-weight: 500;
-      color: #666;
-      text-transform: uppercase;
-      font-size: 11px;
-      letter-spacing: 0.8px;
-      border-bottom: 1px solid #222;
-      white-space: nowrap;
-    }
-
-    td {
-      padding: 14px 16px;
-      border-bottom: 1px solid #1a1a1a;
-      vertical-align: top;
-      max-width: 300px;
-    }
-
+    .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 24px; }
+    .stat-card { background: #111; border: 1px solid #2a2a2a; border-radius: 10px; padding: 18px 20px; }
+    .stat-card .val { font-size: 32px; font-weight: 700; color: #fff; line-height: 1; letter-spacing: -1px; }
+    .stat-card .lbl { font-size: 12px; font-weight: 500; color: #888; margin-top: 6px; }
+    .table-wrap { overflow-x: auto; border: 1px solid #2a2a2a; border-radius: 10px; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    thead { background: #111; position: sticky; top: 0; z-index: 1; }
+    th { padding: 12px 16px; text-align: left; font-weight: 600; color: #777; text-transform: uppercase; font-size: 10px; letter-spacing: 1px; border-bottom: 1px solid #2a2a2a; white-space: nowrap; }
+    td { padding: 16px; border-bottom: 1px solid #161616; vertical-align: top; max-width: 280px; }
     tr:last-child td { border-bottom: none; }
-
-    tr:hover td { background: #161616; }
-
-    .company-name {
-      font-weight: 600;
-      color: #fff;
-      font-size: 14px;
-    }
-
-    .location-tag {
-      display: inline-block;
-      background: #1e1e1e;
-      color: #888;
-      font-size: 11px;
-      padding: 2px 8px;
-      border-radius: 4px;
-      margin-top: 4px;
-    }
-
-    .summary-text {
-      color: #ccc;
-      line-height: 1.5;
-    }
-
-    .contact-item {
-      display: flex;
-      align-items: flex-start;
-      gap: 6px;
-      margin-bottom: 4px;
-      font-size: 12px;
-    }
-
-    .contact-label {
-      color: #555;
-      min-width: 55px;
-      font-size: 11px;
-      text-transform: uppercase;
-    }
-
-    .contact-value { color: #ccc; }
-
-    .source-link {
-      font-size: 11px;
-      color: #555;
-      text-decoration: none;
-      word-break: break-all;
-    }
-
-    .source-link:hover { color: #aaa; }
-
-    .message-box {
-      background: #1a1a1a;
-      border-left: 2px solid #333;
-      padding: 10px 12px;
-      border-radius: 0 6px 6px 0;
-      color: #ccc;
-      line-height: 1.6;
-      font-size: 12px;
-      white-space: pre-wrap;
-    }
-
-    .badge {
-      display: inline-block;
-      padding: 2px 8px;
-      border-radius: 4px;
-      font-size: 11px;
-      font-weight: 500;
-    }
-
-    .badge-success { background: #1a2e1a; color: #4caf50; }
-    .badge-partial { background: #2e2a1a; color: #f0a500; }
-    .badge-failed { background: #2e1a1a; color: #e05252; }
-
-    .copy-btn {
-      background: none;
-      border: 1px solid #333;
-      color: #666;
-      font-size: 11px;
-      padding: 3px 8px;
-      border-radius: 4px;
-      cursor: pointer;
-      margin-top: 6px;
-    }
-
-    .copy-btn:hover { color: #ccc; border-color: #555; }
-
-    .empty-state {
-      text-align: center;
-      padding: 80px 32px;
-      color: #444;
-    }
-
-    .empty-state h3 { font-size: 16px; margin-bottom: 8px; color: #555; }
-    .empty-state p { font-size: 13px; }
-
-    .spinner {
-      display: inline-block;
-      width: 12px;
-      height: 12px;
-      border: 2px solid #333;
-      border-top-color: #fff;
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-      margin-right: 8px;
-      vertical-align: middle;
-    }
-
+    tr:hover td { background: #0f0f0f; }
+    .row-num { font-size: 12px; font-weight: 600; color: #444; }
+    .company-name { font-weight: 700; color: #fff; font-size: 14px; letter-spacing: -0.2px; }
+    .location-tag { display: inline-block; background: #1a1a1a; color: #999; font-size: 11px; font-weight: 500; padding: 2px 8px; border-radius: 4px; margin-top: 5px; border: 1px solid #2a2a2a; }
+    .summary-text { color: #ccc; line-height: 1.6; font-size: 12.5px; }
+    .meta-row { margin-top: 10px; display: flex; flex-direction: column; gap: 4px; }
+    .meta-item { font-size: 11.5px; color: #888; font-weight: 500; }
+    .meta-item span { color: #bbb; font-weight: 400; }
+    .contact-block { display: flex; flex-direction: column; gap: 6px; }
+    .contact-row { display: flex; align-items: flex-start; gap: 8px; font-size: 12px; }
+    .contact-label { font-size: 10px; font-weight: 700; color: #666; text-transform: uppercase; letter-spacing: 0.5px; min-width: 42px; padding-top: 1px; }
+    .contact-value { color: #ddd; font-weight: 500; word-break: break-all; }
+    .contact-value.not-found { color: #444; font-weight: 400; }
+    .source-link { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 600; color: #666; text-decoration: none; margin-top: 6px; padding: 3px 8px; border: 1px solid #2a2a2a; border-radius: 4px; transition: all 0.15s; }
+    .source-link:hover { color: #fff; border-color: #444; background: #1a1a1a; }
+    .message-box { background: #0f0f0f; border: 1px solid #2a2a2a; border-left: 3px solid #333; padding: 12px 14px; border-radius: 0 7px 7px 0; color: #ddd; line-height: 1.65; font-size: 12.5px; white-space: pre-wrap; }
+    .copy-btn { display: inline-flex; align-items: center; gap: 5px; background: transparent; border: 1px solid #2a2a2a; color: #888; font-size: 11px; font-weight: 600; font-family: inherit; padding: 4px 10px; border-radius: 5px; cursor: pointer; margin-top: 8px; transition: all 0.15s; }
+    .copy-btn:hover { color: #fff; border-color: #444; background: #1a1a1a; }
+    .copy-btn.copied { color: #4caf50; border-color: #1a3a1a; }
+    .badge { display: inline-block; padding: 3px 10px; border-radius: 5px; font-size: 11px; font-weight: 700; letter-spacing: 0.3px; text-transform: uppercase; }
+    .badge-success { background: #0d1f0d; color: #4caf50; border: 1px solid #1a3a1a; }
+    .badge-partial { background: #1f1a00; color: #f0c040; border: 1px solid #3a3000; }
+    .badge-failed  { background: #1f0d0d; color: #e05252; border: 1px solid #3a1a1a; }
+    .empty-state { text-align: center; padding: 80px 32px; }
+    .empty-icon { font-size: 40px; margin-bottom: 16px; opacity: 0.3; }
+    .empty-state h3 { font-size: 16px; font-weight: 700; color: #555; margin-bottom: 8px; }
+    .empty-state p { font-size: 13px; color: #444; font-weight: 500; }
+    .spinner { display: inline-block; width: 11px; height: 11px; border: 2px solid #333; border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; margin-right: 7px; vertical-align: middle; }
     @keyframes spin { to { transform: rotate(360deg); } }
+    @media (max-width: 768px) { .stats { grid-template-columns: repeat(2, 1fr); } .container { padding: 16px; } header { padding: 14px 16px; } }
   </style>
 </head>
 <body>
 
 <header>
-  <h1>⚡ Brokai Lead Intelligence</h1>
-  <span>Multi-Agent Pipeline · Solar EPC · Rajasthan</span>
+  <div class="header-left">
+    <div class="header-logo">⚡</div>
+    <h1>Brokai Lead Intelligence</h1>
+  </div>
+  <span class="header-badge">Multi-Agent · Solar EPC · Rajasthan</span>
 </header>
 
 <div class="container">
 
+  <div class="notice">
+    ⏱ First run may take ~40s to wake up (free tier cold start), then 2–3 min for the full pipeline. Do not close the tab.
+  </div>
+
   <div class="controls">
-    <h2>Run Pipeline</h2>
-    <button class="btn" id="runBtn" onclick="runPipeline()">Run on All Companies</button>
-    <button class="btn btn-secondary" id="clearBtn" onclick="clearResults()">Clear</button>
+    <div class="controls-top">
+      <button class="btn" id="runBtn" onclick="runPipeline()">▶ Run Pipeline</button>
+      <button class="btn btn-secondary" onclick="clearResults()">Clear Results</button>
+    </div>
+
+    <div class="agent-steps" id="agentSteps">
+      <div class="agent-step" id="step1"><div class="step-dot"></div>01 · Researcher</div>
+      <div class="agent-arrow">→</div>
+      <div class="agent-step" id="step2"><div class="step-dot"></div>02 · Contact Finder</div>
+      <div class="agent-arrow">→</div>
+      <div class="agent-step" id="step3"><div class="step-dot"></div>03 · Outreach Writer</div>
+    </div>
+
     <div class="progress-wrap" id="progressWrap">
       <div class="progress-bar" id="progressBar"></div>
     </div>
-    <div class="status-bar" id="statusBar">Ready — click Run to start the pipeline.</div>
+    <div class="status-bar" id="statusBar">Ready — click Run Pipeline to start.</div>
   </div>
 
   <div class="stats" id="statsRow" style="display:none">
-    <div class="stat-card">
-      <div class="val" id="statTotal">0</div>
-      <div class="lbl">Total Companies</div>
-    </div>
-    <div class="stat-card">
-      <div class="val" id="statSuccess" style="color:#4caf50">0</div>
-      <div class="lbl">Successfully Processed</div>
-    </div>
-    <div class="stat-card">
-      <div class="val" id="statContact" style="color:#f0a500">0</div>
-      <div class="lbl">Contacts Found</div>
-    </div>
-    <div class="stat-card">
-      <div class="val" id="statFailed" style="color:#e05252">0</div>
-      <div class="lbl">Failed / No Data</div>
-    </div>
+    <div class="stat-card"><div class="val" id="statTotal">0</div><div class="lbl">Total Companies</div></div>
+    <div class="stat-card"><div class="val" id="statSuccess" style="color:#4caf50">0</div><div class="lbl">Successfully Processed</div></div>
+    <div class="stat-card"><div class="val" id="statContact" style="color:#f0c040">0</div><div class="lbl">Contacts Found</div></div>
+    <div class="stat-card"><div class="val" id="statFailed" style="color:#e05252">0</div><div class="lbl">Failed / No Data</div></div>
   </div>
 
-  <div class="table-wrap" id="tableWrap">
+  <div class="table-wrap">
     <div class="empty-state" id="emptyState">
+      <div class="empty-icon">🔍</div>
       <h3>No results yet</h3>
-      <p>Click "Run on All Companies" to start the multi-agent pipeline.</p>
+      <p>Click "Run Pipeline" to start the multi-agent research pipeline.</p>
     </div>
     <table id="resultsTable" style="display:none">
       <thead>
         <tr>
-          <th>#</th>
-          <th>Company</th>
-          <th>Business Profile</th>
-          <th>Contact Info</th>
-          <th>Outreach Message</th>
-          <th>Status</th>
+          <th>#</th><th>Company</th><th>Business Profile</th>
+          <th>Contact Info</th><th>Outreach Message</th><th>Status</th>
         </tr>
       </thead>
       <tbody id="resultsBody"></tbody>
@@ -347,6 +143,51 @@
 <script>
   let results = [];
 
+  const STEPS = [
+    { id: 'step1', delay: 2000,   msg: 'Agent 01 — Researcher is searching the web for each company...' },
+    { id: 'step2', delay: 35000,  msg: 'Agent 02 — Contact Finder is locating phones and emails...' },
+    { id: 'step3', delay: 80000,  msg: 'Agent 03 — Outreach Writer is generating personalised messages...' },
+  ];
+
+  let stepTimers = [];
+
+  function animateSteps() {
+    document.getElementById('agentSteps').style.display = 'flex';
+    STEPS.forEach(({ id, delay, msg }, idx) => {
+      const t = setTimeout(() => {
+        if (idx > 0) {
+          const prev = document.getElementById(STEPS[idx-1].id);
+          prev.classList.remove('active'); prev.classList.add('done');
+          prev.querySelector('.step-dot').classList.remove('pulse');
+        }
+        const el = document.getElementById(id);
+        el.classList.add('active');
+        el.querySelector('.step-dot').classList.add('pulse');
+        document.getElementById('statusBar').textContent = msg;
+      }, delay);
+      stepTimers.push(t);
+    });
+  }
+
+  function finishSteps() {
+    stepTimers.forEach(clearTimeout);
+    STEPS.forEach(({ id }) => {
+      const el = document.getElementById(id);
+      el.classList.remove('active'); el.classList.add('done');
+      el.querySelector('.step-dot').classList.remove('pulse');
+    });
+  }
+
+  function resetSteps() {
+    stepTimers.forEach(clearTimeout); stepTimers = [];
+    STEPS.forEach(({ id }) => {
+      const el = document.getElementById(id);
+      el.classList.remove('active', 'done');
+      el.querySelector('.step-dot').classList.remove('pulse');
+    });
+    document.getElementById('agentSteps').style.display = 'none';
+  }
+
   async function runPipeline() {
     const btn = document.getElementById('runBtn');
     const statusBar = document.getElementById('statusBar');
@@ -354,115 +195,107 @@
     const progressBar = document.getElementById('progressBar');
 
     btn.disabled = true;
-    btn.innerHTML = '<span class="spinner"></span>Running Pipeline...';
+    btn.innerHTML = '<span class="spinner"></span>Running...';
     statusBar.className = 'status-bar running';
-    statusBar.textContent = 'Starting agents... this may take 2-4 minutes for all companies.';
+    statusBar.textContent = 'Waking up server... (free tier cold start ~40s)';
     progressWrap.style.display = 'block';
-    progressBar.style.width = '10%';
+    progressBar.style.width = '5%';
+
+    animateSteps();
+
+    const progTimers = [
+      setTimeout(() => { progressBar.style.width = '20%'; }, 5000),
+      setTimeout(() => { progressBar.style.width = '45%'; }, 35000),
+      setTimeout(() => { progressBar.style.width = '75%'; }, 80000),
+      setTimeout(() => { progressBar.style.width = '88%'; }, 120000),
+    ];
 
     try {
-      progressBar.style.width = '30%';
-      statusBar.textContent = 'Agent 01 (Researcher) → Agent 02 (Contact Finder) → Agent 03 (Outreach Writer)...';
-
       const response = await fetch('/process-excel', { method: 'POST' });
-
-      progressBar.style.width = '90%';
+      progTimers.forEach(clearTimeout);
 
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
-
       results = await response.json();
-
       if (results.error) throw new Error(results.error);
 
       progressBar.style.width = '100%';
+      finishSteps();
       renderResults(results);
-
       statusBar.className = 'status-bar done';
       statusBar.textContent = `✓ Pipeline complete — ${results.length} companies processed.`;
 
     } catch (err) {
+      progTimers.forEach(clearTimeout);
       statusBar.className = 'status-bar error';
-      statusBar.textContent = `Error: ${err.message}`;
+      statusBar.textContent = `✗ Error: ${err.message}`;
       progressBar.style.width = '0%';
+      resetSteps();
     } finally {
       btn.disabled = false;
-      btn.textContent = 'Run on All Companies';
+      btn.innerHTML = '▶ Run Pipeline';
     }
   }
 
   function renderResults(data) {
     const tbody = document.getElementById('resultsBody');
-    const table = document.getElementById('resultsTable');
-    const emptyState = document.getElementById('emptyState');
-    const statsRow = document.getElementById('statsRow');
-
     tbody.innerHTML = '';
 
     const total = data.length;
     const success = data.filter(r => r.status === 'success').length;
     const failed = data.filter(r => r.status === 'failed').length;
-    const hasContact = data.filter(r =>
-      r.contact_phone !== 'Not found' || r.contact_email !== 'Not found'
-    ).length;
+    const hasContact = data.filter(r => r.contact_phone !== 'Not found' || r.contact_email !== 'Not found').length;
 
     document.getElementById('statTotal').textContent = total;
     document.getElementById('statSuccess').textContent = success;
     document.getElementById('statContact').textContent = hasContact;
     document.getElementById('statFailed').textContent = failed;
-    statsRow.style.display = 'flex';
+    document.getElementById('statsRow').style.display = 'grid';
 
     data.forEach((row, i) => {
+      const pC = row.contact_phone === 'Not found' ? 'not-found' : '';
+      const eC = row.contact_email === 'Not found' ? 'not-found' : '';
+      const wC = row.contact_whatsapp === 'Not found' ? 'not-found' : '';
       const tr = document.createElement('tr');
       tr.innerHTML = `
-        <td style="color:#444;font-size:12px">${i + 1}</td>
+        <td><span class="row-num">${i+1}</span></td>
         <td>
           <div class="company-name">${esc(row.company_name)}</div>
           <div class="location-tag">${esc(row.location)}</div>
         </td>
         <td>
           <div class="summary-text">${esc(row.business_summary)}</div>
-          <div style="margin-top:8px;font-size:11px;color:#555">
-            <strong style="color:#444">Digital:</strong> ${esc(row.digital_presence)}<br>
-            <strong style="color:#444">CRM/Booking:</strong> ${esc(row.uses_crm_or_booking)}
+          <div class="meta-row">
+            <div class="meta-item">Digital: <span>${esc(row.digital_presence)}</span></div>
+            <div class="meta-item">CRM/Booking: <span>${esc(row.uses_crm_or_booking)}</span></div>
           </div>
         </td>
         <td>
-          <div class="contact-item">
-            <span class="contact-label">Phone</span>
-            <span class="contact-value">${esc(row.contact_phone)}</span>
+          <div class="contact-block">
+            <div class="contact-row"><span class="contact-label">Phone</span><span class="contact-value ${pC}">${esc(row.contact_phone)}</span></div>
+            <div class="contact-row"><span class="contact-label">Email</span><span class="contact-value ${eC}">${esc(row.contact_email)}</span></div>
+            <div class="contact-row"><span class="contact-label">WA</span><span class="contact-value ${wC}">${esc(row.contact_whatsapp)}</span></div>
           </div>
-          <div class="contact-item">
-            <span class="contact-label">Email</span>
-            <span class="contact-value">${esc(row.contact_email)}</span>
-          </div>
-          <div class="contact-item">
-            <span class="contact-label">WA</span>
-            <span class="contact-value">${esc(row.contact_whatsapp)}</span>
-          </div>
-          ${row.contact_source_url !== 'Not found' ?
-            `<a href="${esc(row.contact_source_url)}" target="_blank" class="source-link">↗ Source</a>` :
-            '<span style="font-size:11px;color:#444">No source found</span>'
-          }
+          ${row.contact_source_url !== 'Not found'
+            ? `<a href="${esc(row.contact_source_url)}" target="_blank" class="source-link">↗ Source</a>`
+            : '<div style="margin-top:8px;font-size:11px;font-weight:500;color:#444">No source found</div>'}
         </td>
         <td>
           <div class="message-box">${esc(row.outreach_message)}</div>
-          <button class="copy-btn" onclick="copyMsg(this, ${i})">Copy</button>
+          <button class="copy-btn" onclick="copyMsg(this,${i})">⎘ Copy</button>
         </td>
-        <td>
-          <span class="badge badge-${row.status}">${row.status}</span>
-        </td>
+        <td><span class="badge badge-${row.status}">${row.status}</span></td>
       `;
       tbody.appendChild(tr);
     });
 
-    emptyState.style.display = 'none';
-    table.style.display = 'table';
+    document.getElementById('emptyState').style.display = 'none';
+    document.getElementById('resultsTable').style.display = 'table';
   }
 
   function copyMsg(btn, idx) {
     navigator.clipboard.writeText(results[idx].outreach_message);
-    btn.textContent = 'Copied!';
-    setTimeout(() => btn.textContent = 'Copy', 1500);
+    btn.textContent = '✓ Copied'; btn.classList.add('copied');
+    setTimeout(() => { btn.innerHTML = '⎘ Copy'; btn.classList.remove('copied'); }, 2000);
   }
 
   function clearResults() {
@@ -470,22 +303,17 @@
     document.getElementById('resultsTable').style.display = 'none';
     document.getElementById('emptyState').style.display = 'block';
     document.getElementById('statsRow').style.display = 'none';
-    document.getElementById('statusBar').textContent = 'Ready — click Run to start the pipeline.';
+    document.getElementById('statusBar').textContent = 'Ready — click Run Pipeline to start.';
     document.getElementById('statusBar').className = 'status-bar';
     document.getElementById('progressBar').style.width = '0%';
     document.getElementById('progressWrap').style.display = 'none';
-    results = [];
+    resetSteps(); results = [];
   }
 
   function esc(str) {
     if (!str) return '';
-    return String(str)
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;');
+    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
 </script>
-
 </body>
 </html>
