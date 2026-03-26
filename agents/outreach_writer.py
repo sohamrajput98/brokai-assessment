@@ -1,5 +1,5 @@
 import os
-from agents.llm_client import call_llm
+from agents.llm_client import call_llm_quality
 
 
 class OutreachWriterAgent:
@@ -44,7 +44,7 @@ Write a message that:
 Return only the message body, nothing else."""
 
         try:
-            return call_llm(prompt, max_tokens=300, temperature=0.7)
+            return call_llm_quality(prompt, max_tokens=300, temperature=0.7)
         
         except Exception as e:
             return f"Message generation failed: {e}"
