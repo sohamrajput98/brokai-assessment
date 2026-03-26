@@ -17,6 +17,7 @@ finds contacts, and generates WhatsApp outreach messages.
 ## 🌐 Live Demo
 
 <p align="center">
+  <a href="https://brokai-assessment.onrender.com/">
   <img src="https://img.shields.io/badge/LIVE_DEMO-333333?style=for-the-badge&logo=render&logoColor=white"/>
   &nbsp;
   <a href="https://brokai-assessment.onrender.com/">
@@ -69,13 +70,14 @@ Three specialised agents work in sequence for each company:
 ---
 
 ## Sample Output
-
 ```json
 {
-  "company": "ABC Solar",
-  "contact": "+91XXXXXXXXXX",
-  "email": "info@abcsolar.com",
-  "message": "Hi, I came across your company..."
+  "company": "Yash Electricals & Civil Services",
+  "location": "Rajasthan, India",
+  "contact_phone": "Not found",
+  "contact_email": "yashelectricals2016@gmail.com",
+  "digital_presence": "website, social media, directory listings (IndiaMART, Justdial, ENF Solar, Facebook)",
+  "outreach_message": "Hi Yash Electricals & Civil Services, I came across your solar installation services in Jaipur and noticed you must handle a high volume of customer calls and follow-ups manually. Our AI-powered voice receptionists can help you automate calls, reducing response times by up to 50% and freeing up staff to focus on installations. Would you be open to a quick chat about how this could work for your business?"
 }
 ```
 ---
