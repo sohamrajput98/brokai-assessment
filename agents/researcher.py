@@ -1,7 +1,7 @@
 import os
 import json
 from tavily import TavilyClient
-from agents.llm_client import call_llm
+from agents.llm_client import call_llm_fast
 
 
 class ResearcherAgent:
@@ -54,7 +54,7 @@ Return ONLY valid JSON with these exact keys:
 Use honest fallbacks if info is missing. Do not invent facts."""
 
         try:
-            content = call_llm(prompt, max_tokens=500, temperature=0.1)
+            content = call_llm_fast(prompt, max_tokens=500, temperature=0.1)
             if content.startswith("```"):
                 content = content.split("```")[1]
                 if content.startswith("json"):
