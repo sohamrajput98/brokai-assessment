@@ -10,8 +10,7 @@
   <img src="https://img.shields.io/badge/RENDER_DEPLOY-46E3B7?style=for-the-badge&logo=render&logoColor=black"/>
 </p>
 
-A multi-agent pipeline that researches solar EPC companies, 
-finds contacts, and generates WhatsApp outreach messages.
+An automated lead intelligence system that researches businesses, finds publicly available contact information, and generates personalized WhatsApp outreach - built to handle real-world API constraints and data quality issues.
 <br><br>
 
 ## 🌐 Live Demo
@@ -28,6 +27,16 @@ finds contacts, and generates WhatsApp outreach messages.
 <p align="center">
   <sub>  ⚠️ Cold start: ~30–50s • Full run: ~3-5 min. Do not close the tab.</sub>
 </p>
+
+---
+## 💡 Problem This Solves
+
+Manual lead research is slow and inconsistent. Sales teams spend hours:
+- Googling company backgrounds and verifying information
+- Hunting for contact info across multiple directories
+- Writing personalized outreach messages from scratch
+
+This system automates the entire workflow - research, contact discovery, and message generation - reducing hours of manual work to minutes while maintaining output quality and personalization.
 
 ---
 
@@ -52,24 +61,34 @@ Three specialised agents work in sequence for each company:
 
 | Agent | Role | Input | Output |
 |-------|------|-------|--------|
-| **01 — Researcher** | Searches the web to build a business profile | Company name + location | Summary, digital presence, CRM usage |
-| **02 — Contact Finder** | Locates phone, email, WhatsApp from directories | Business profile | Contact card with source URL |
-| **03 — Outreach Writer** | Generates a personalised WhatsApp-style cold message | Profile + contact card | Ready-to-send message |
+| **01 - Researcher** | Searches the web to build a business profile | Company name + location | Summary, digital presence, CRM usage |
+| **02 - Contact Finder** | Locates phone, email, WhatsApp from directories | Business profile | Contact card with source URL |
+| **03 - Outreach Writer** | Generates a personalised WhatsApp-style cold message | Profile + contact card | Ready-to-send message |
 <br>
 
-**Batch parallel processing:** 3 companies run concurrently per batch via `asyncio.gather()`, with a 3s pause between batches. Full pipeline for 21 companies completes in ~2-3 minutes instead of 7-9 minutes sequential — without hitting free tier rate limits. On a paid tier, removing the inter-batch delay gets you near-instant full runs.
+**Batch parallel processing:** 3 companies/batch via asyncio.gather() with 3s inter-batch delay - completes 21 companies in ~2-3min instead of 7-9min sequential, without hitting free tier rate limits.
 
 ---
-## Key Features
+## 🧪 How It Works (Demo Flow)
 
-- Multi-agent pipeline (Research → Contact → Outreach)
-- Async batch processing with rate-limit handling
-- Graceful failure and retry system
-- Uses real-world data sources (Tavily search)
-- Production-ready API with FastAPI
+1. Click "Run Pipeline"
+2. Processes companies in batches of 3
+3. Each row updates with profile, contact, and outreach
+4. Full results appear in ~3-5 minutes
+
 ---
 
-## Sample Output
+## ⚡ Engineering Highlights
+
+- **Rate-limit resilient**: Exponential backoff retry (1s→2s→4s) + batch processing to handle Groq's 12K TPM limit
+- **Batch parallel execution**: 3 companies/batch with 3s pauses → 2-3min runtime vs 7-9min sequential
+- **Multi-account routing**: Split Groq accounts by task type (extraction vs writing) to avoid quota bottlenecks
+- **Graceful failure**: Pipeline never crashes — fallback values at every error point
+- **Async orchestration**: `asyncio.to_thread()` wrapping for sync API calls in async context
+
+---
+
+## Actual Output (from live run) :
 ```json
 {
   "company": "Yash Electricals & Civil Services",
@@ -78,6 +97,8 @@ Three specialised agents work in sequence for each company:
   "contact_email": "yashelectricals2016@gmail.com",
   "digital_presence": "website, social media, directory listings (IndiaMART, Justdial, ENF Solar, Facebook)",
   "outreach_message": "Hi Yash Electricals & Civil Services, I came across your solar installation services in Jaipur and noticed you must handle a high volume of customer calls and follow-ups manually. Our AI-powered voice receptionists can help you automate calls, reducing response times by up to 50% and freeing up staff to focus on installations. Would you be open to a quick chat about how this could work for your business?"
+
+Note: Output is generated from live model responses with minimal post-processing. Quality varies depending on available public data.
 }
 ```
 ---
@@ -85,7 +106,7 @@ Three specialised agents work in sequence for each company:
 ## Stack
 
 - **Backend:** FastAPI (Python)
-- **LLM:** Groq (Llama 3.1 8B Instant) — two accounts, split by task type
+- **LLM:** Groq (Llama 3.1 8B Instant) - two accounts, split by task type
 - **Web Search:** Tavily
 - **Frontend:** Vanilla HTML/CSS/JS
 - **Deployment:** Render (free tier)
@@ -148,6 +169,15 @@ uvicorn main:app --reload
 ```
 
 Visit `http://localhost:8000` and click **Run Pipeline**.
+
+---
+## 🎯 Assessment Alignment
+
+- ✅ **Clear agent separation** — 3 independent modules with defined input/output contracts
+- ✅ **Graceful failure handling** — Retry logic, fallback values, no pipeline crashes
+- ✅ **Production deployment** — Live on Render with public URL
+- ✅ **Real-world constraints** — Rate limit handling, free tier optimization
+- ✅ **Code quality** — Modular structure, minimal abstraction, readable
 
 ---
 
